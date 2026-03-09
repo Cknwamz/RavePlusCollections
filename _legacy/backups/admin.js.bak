@@ -1,0 +1,223 @@
+// =========================================================
+// ADMIN CREDENTIALS (In production, use backend auth)
+// =========================================================
+const ADMIN_CREDENTIALS = {
+  email: 'admin@raveplus.com',
+  password: 'raveadmin123'
+};
+
+let isAdminLoggedIn = false;
+
+// =========================================================
+// LOGIN HANDLER
+// =========================================================
+function handleAdminLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('adminEmail').value;
+  const password = document.getElementById('adminPassword').value;
+  const errorEl = document.getElementById('loginError');
+
+  if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
+    isAdminLoggedIn = true;
+    document.getElementById('adminLogin').classList.add('hidden');
+    document.getElementById('adminDashboard').classList.remove('hidden');
+    loadDashboardData();
+  } else {
+    errorEl.textContent = 'Invalid credentials';
+    errorEl.classList.remove('hidden');
+  }
+}
+
+function handleLogout() {
+  if (confirm('Are you sure you want to logout?')) {
+    isAdminLoggedIn = false;
+    document.getElementById('adminLogin').classList.remove('hidden');
+    document.getElementById('adminDashboard').classList.add('hidden');
+  }
+}
+
+// =========================================================
+// TAB NAVIGATION
+// =========================================================
+function switchTab(tab) {
+  // Update sidebar
+  document.querySelectorAll('.sidebar-link').forEach(link => {
+    link.classList.remove('active');
+  });
+  
+  // Find the button that was clicked
+  const clickedBtn = event.currentTarget;
+  if (clickedBtn) clickedBtn.classList.add('active');
+
+  // Update content
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.classList.add('hidden');
+  });
+  const activeTab = document.getElementById(tab + 'Tab');
+  if (activeTab) activeTab.classList.remove('hidden');
+
+  // Update header
+  const titles = {
+    overview: 'Dashboard Overview',
+    orders: 'Order Management',
+    products: 'Product Catalog',
+    customers: 'Customer Database',
+    settings: 'Settings'
+  };
+  const titleEl = document.getElementById('pageTitle');
+  if (titleEl) titleEl.textContent = titles[tab];
+}
+
+// =========================================================
+// LOAD DASHBOARD DATA
+// =========================================================
+function loadDashboardData() {
+  // Get data from localStorage
+  const users = JSON.parse(localStorage.getItem('raveplus_users')) || [];
+  
+  // Product data (Hardcoded for now, can be moved to state.js or fetched)
+  const products = [
+    { id: 'silk-boubou', name: 'Midnight Silk Boubou', category: 'boubou', price: 45000, stock: 12 },
+    { id: 'royal-agbada', name: 'Royal Gold Agbada', category: 'agbada', price: 85000, stock: 8 },
+    { id: 'ankara-couture', name: 'Ankara Floral Couture', category: 'dresses', price: 32000, stock: 15 },
+  ];
+
+  // Calculate stats
+  let totalSales = 0;
+  let totalOrders = 0;
+  users.forEach(user => {
+    if (user.orders) {
+      totalOrders += user.orders.length;
+      user.orders.forEach(order => {
+        totalSales += order.total;
+      });
+    }
+  });
+
+  // Update stats cards
+  const salesEl = document.getElementById('totalSales');
+  const ordersEl = document.getElementById('totalOrders');
+  const productsEl = document.getElementById('totalProducts');
+  const customersEl = document.getElementById('totalCustomers');
+
+  if (salesEl) salesEl.textContent = `₦${totalSales.toLocaleString()}`;
+  if (ordersEl) ordersEl.textContent = totalOrders;
+  if (productsEl) productsEl.textContent = products.length;
+  if (customersEl) customersEl.textContent = users.length;
+
+  // Render lists
+  renderRecentOrders(users);
+  renderAllOrders(users);
+  renderProductsList(products);
+  renderCustomersList(users);
+}
+
+function renderRecentOrders(users) {
+  const container = document.getElementById('recentOrdersList');
+  if (!container) return;
+  
+  const allOrders = [];
+  users.forEach(user => {
+    if (user.orders) {
+      user.orders.forEach(order => {
+        allOrders.push({ ...order, customer: user.name, email: user.email });
+      });
+    }
+  });
+
+  if (allOrders.length === 0) {
+    container.innerHTML = '<p class="text-gray-400 text-center py-8">No orders yet</p>';
+    return;
+  }
+
+  allOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
+  const recent = allOrders.slice(0, 5);
+
+  container.innerHTML = recent.map(order => `
+    <div class="flex items-center justify-between py-4 border-b border-gray-100 last:border-0">
+      <div>
+        <p class="font-semibold text-gray-800">#${order.id}</p>
+        <p class="text-sm text-gray-500">${order.customer}</p>
+      </div>
+      <div class="text-right">
+        <p class="font-bold text-gray-800">₦${order.total.toLocaleString()}</p>
+        <p class="text-xs text-green-600">${order.status}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAllOrders(users) {
+  const tbody = document.getElementById('ordersTableBody');
+  if (!tbody) return;
+  
+  const allOrders = [];
+  users.forEach(user => {
+    if (user.orders) {
+      user.orders.forEach(order => {
+        allOrders.push({ ...order, customer: user.name, email: user.email });
+      });
+    }
+  });
+
+  if (allOrders.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No orders found</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = allOrders.map(order => `
+    <tr>
+      <td class="px-6 py-4 text-sm font-mono text-gray-800">#${order.id}</td>
+      <td class="px-6 py-4 text-sm text-gray-800">${order.customer}</td>
+      <td class="px-6 py-4 text-sm text-gray-600">${new Date(order.date).toLocaleDateString()}</td>
+      <td class="px-6 py-4 text-sm font-bold text-gray-800">₦${order.total.toLocaleString()}</td>
+      <td class="px-6 py-4"><span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded">${order.status}</span></td>
+      <td class="px-6 py-4">
+        <button class="text-orange-600 hover:text-orange-800 text-sm font-medium">View</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderProductsList(products) {
+  const tbody = document.getElementById('productsTableBody');
+  if (!tbody) return;
+  
+  tbody.innerHTML = products.map(product => `
+    <tr>
+      <td class="px-6 py-4 text-sm font-medium text-gray-800">${product.name}</td>
+      <td class="px-6 py-4 text-sm text-gray-600 capitalize">${product.category}</td>
+      <td class="px-6 py-4 text-sm font-bold text-gray-800">₦${product.price.toLocaleString()}</td>
+      <td class="px-6 py-4 text-sm text-gray-600">${product.stock} units</td>
+      <td class="px-6 py-4">
+        <button class="text-orange-600 hover:text-orange-800 text-sm font-medium mr-3">Edit</button>
+        <button class="text-red-600 hover:text-red-800 text-sm font-medium">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderCustomersList(users) {
+  const tbody = document.getElementById('customersTableBody');
+  if (!tbody) return;
+  
+  if (users.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400">No customers yet</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = users.map(user => {
+    const orderCount = user.orders ? user.orders.length : 0;
+    const totalSpent = user.orders ? user.orders.reduce((sum, o) => sum + o.total, 0) : 0;
+
+    return `
+      <tr>
+        <td class="px-6 py-4 text-sm font-medium text-gray-800">${user.name}</td>
+        <td class="px-6 py-4 text-sm text-gray-600">${user.email}</td>
+        <td class="px-6 py-4 text-sm text-gray-600">${user.phone}</td>
+        <td class="px-6 py-4 text-sm text-gray-800">${orderCount}</td>
+        <td class="px-6 py-4 text-sm font-bold text-gray-800">₦${totalSpent.toLocaleString()}</td>
+      </tr>
+    `;
+  }).join('');
+}

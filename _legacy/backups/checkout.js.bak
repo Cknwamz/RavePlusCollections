@@ -1,0 +1,72 @@
+// =========================================================
+// CHECKOUT FUNCTIONS
+// =========================================================
+const PAYSTACK_PUBLIC_KEY = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx'; // ✏️ Replace with your key
+
+function proceedToCheckout() {
+  if (cart.length === 0) return;
+
+  if (!currentUser) {
+    alert('Please login or create an account to checkout');
+    toggleDrawer('cart');
+    toggleModal('login');
+    return;
+  }
+
+  // Ensure user has an address
+  if (!currentUser.addresses || currentUser.addresses.length === 0) {
+    alert('Please add a shipping address in your account before checkout.');
+    openAccountModal();
+    switchAccountTab('addresses');
+    return;
+  }
+
+  const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const reference = 'RAVE-' + Date.now();
+
+  const handler = PaystackPop.setup({
+    key: PAYSTACK_PUBLIC_KEY,
+    email: currentUser.email,
+    amount: total * 100, // Kobo
+    currency: 'NGN',
+    ref: reference,
+    metadata: {
+      custom_fields: [
+        { display_name: 'Customer', variable_name: 'customer', value: currentUser.name },
+        { display_name: 'Items', variable_name: 'items', value: cart.map(i => `${i.name} x${i.qty}`).join(', ') }
+      ]
+    },
+    callback: function(response) {
+      // Payment successful!
+      handleSuccessfulPayment(response, reference, total);
+    },
+    onClose: function() {
+      alert('Transaction cancelled.');
+    }
+  });
+
+  handler.openIframe();
+}
+
+function handleSuccessfulPayment(response, reference, total) {
+  const order = {
+    id: reference,
+    date: new Date().toISOString(),
+    items: [...cart],
+    total: total,
+    status: 'Confirmed',
+    paymentRef: response.reference
+  };
+  
+  if (!currentUser.orders) currentUser.orders = [];
+  currentUser.orders.push(order);
+  updateUserData();
+  
+  // Clear cart
+  cart = [];
+  localStorage.setItem('raveplus_cart', JSON.stringify(cart));
+  if (typeof renderCart === 'function') renderCart();
+  toggleDrawer('cart');
+  
+  alert('Masterpiece Reserved! Your order has been confirmed.');
+}

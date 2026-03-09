@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RavePlus Collections | Luxury African Couture</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+<body class="relative">
+
+  <!-- ============================================================
+       NAV
+  ============================================================ -->
+  <nav class="fixed top-0 w-full z-40 px-8 py-6 flex justify-between items-center bg-white/10 backdrop-blur-lg border-b border-white/20">
+    <div class="fashion-logo text-3xl md:text-5xl text-neutral-900 cursor-pointer" onclick="window.scrollTo(0,0)">
+      RavePlus<span class="text-orange-600">Collections</span>
+    </div>
+    
+    <div class="flex items-center gap-4 md:gap-8">
+      <button onclick="handleAccountClick()" id="accountBtn" class="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-500 hover:text-orange-600 transition-colors hidden md:block">Login</button>
+      
+      <button onclick="toggleDrawer('cart')" class="relative p-2 group">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-8 h-8 group-hover:text-orange-600 transition-colors">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+        </svg>
+        <span id="cartBadge" class="absolute top-1 right-1 bg-orange-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section class="h-screen flex flex-col items-center justify-center relative px-6 text-center bg-silk">
+    <div class="max-w-6xl space-y-8 z-10">
+      <p class="text-neutral-400 font-medium tracking-[0.5em] uppercase text-xs">Embrace Your Inner <span class="text-orange-600">Royalty</span></p>
+      <h1 class="luxury-heading text-6xl md:text-9xl font-light text-neutral-900 leading-[0.9] tracking-tighter">
+        Experience Luxury <br> <span class="italic shimmer-text font-serif">Redefined.</span>
+      </h1>
+      <div class="pt-12 flex flex-col md:flex-row gap-4 justify-center">
+        <a href="#collections" class="inline-block px-12 py-5 bg-neutral-900 text-white text-[10px] font-bold tracking-[0.4em] uppercase hover:bg-orange-600 transition-all shadow-2xl">Shop the House</a>
+        <a href="https://wa.me/2348023427426" target="_blank" class="inline-block px-12 py-5 border border-neutral-900 text-neutral-900 text-[10px] font-bold tracking-[0.4em] uppercase hover:bg-neutral-900 hover:text-white transition-all">WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       COLLECTIONS
+  ============================================================ -->
+  <section id="collections" class="py-32 bg-white">
+    <div class="max-w-7xl mx-auto px-8">
+      <h2 class="luxury-heading text-5xl font-light mb-16">The Masterpieces</h2>
+      <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <!-- Products rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CART DRAWER
+  ============================================================ -->
+  <div id="cartOverlay" onclick="toggleDrawer('cart')" class="drawer-overlay fixed inset-0 bg-neutral-900/40 backdrop-blur-sm z-50"></div>
+  <div id="cart" class="drawer-content fixed top-0 right-0 w-full max-w-md h-full bg-white z-[60] shadow-2xl flex flex-col">
+    <div class="p-8 border-b border-neutral-100 flex justify-between items-center">
+      <h2 class="luxury-heading text-2xl">Your Selection</h2>
+      <button onclick="toggleDrawer('cart')" class="text-neutral-400 hover:text-neutral-900">✕</button>
+    </div>
+    <div id="cartItems" class="flex-1 overflow-y-auto p-8 space-y-6"></div>
+    <div class="p-8 border-t border-neutral-100 space-y-6">
+      <div class="flex justify-between items-end">
+        <span class="text-[10px] uppercase tracking-widest font-bold text-neutral-400">Total</span>
+        <span id="cartTotal" class="luxury-heading text-3xl text-neutral-900">₦0</span>
+      </div>
+      <button onclick="proceedToCheckout()" class="w-full py-6 bg-neutral-900 text-white text-[10px] font-bold tracking-[0.5em] uppercase hover:bg-orange-600 transition-colors">Secure Checkout</button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       LOGIN MODAL
+  ============================================================ -->
+  <div id="loginOverlay" class="modal-overlay fixed inset-0 bg-neutral-900/60 backdrop-blur-md z-[70] flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-lg p-12 relative shadow-2xl">
+      <button onclick="toggleModal('login')" class="absolute top-6 right-6 text-neutral-400 hover:text-neutral-900 text-2xl">✕</button>
+      <div class="text-center space-y-6">
+        <div class="fashion-logo text-4xl">RavePlus<span class="text-orange-600">Collections</span></div>
+        <h3 class="luxury-heading text-3xl font-light">Welcome Back</h3>
+        <form onsubmit="handleLogin(event)" class="space-y-4 pt-6">
+          <input id="loginEmail" type="email" placeholder="Email Address" required class="w-full border-b border-neutral-200 py-4 outline-none focus:border-orange-600 transition-colors">
+          <input id="loginPassword" type="password" placeholder="Password" required class="w-full border-b border-neutral-200 py-4 outline-none focus:border-orange-600 transition-colors">
+          <div id="loginError" class="text-red-500 text-xs hidden"></div>
+          <button type="submit" class="w-full py-5 bg-neutral-900 text-white text-[10px] font-bold tracking-[0.4em] uppercase hover:bg-orange-600 transition-all">Sign In</button>
+        </form>
+        <p class="text-[10px] text-neutral-400 uppercase tracking-widest pt-4">Don't have an account? <button onclick="switchToSignup()" class="text-orange-600 font-bold underline">Create Account</button></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SIGNUP MODAL
+  ============================================================ -->
+  <div id="signupOverlay" class="modal-overlay fixed inset-0 bg-neutral-900/60 backdrop-blur-md z-[70] flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-lg p-12 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+      <button onclick="toggleModal('signup')" class="absolute top-6 right-6 text-neutral-400 hover:text-neutral-900 text-2xl">✕</button>
+      <div class="text-center space-y-6">
+        <div class="fashion-logo text-4xl">RavePlus<span class="text-orange-600">Collections</span></div>
+        <h3 class="luxury-heading text-3xl font-light">Join the House</h3>
+        <form onsubmit="handleSignup(event)" class="space-y-4 pt-6">
+          <input id="signupName" type="text" placeholder="Full Name" required class="w-full border-b border-neutral-200 py-4 outline-none focus:border-orange-600 transition-colors">
+          <input id="signupEmail" type="email" placeholder="Email Address" required class="w-full border-b border-neutral-200 py-4 outline-none focus:border-orange-600 transition-colors">
+          <input id="signupPhone" type="tel" placeholder="Phone Number" required class="w-full border-b border-neutral-200 py-4 outline-none focus:border-orange-600 transition-colors">
+          <input id="signupPassword" type="password" placeholder="Password" required minlength="6" class="w-full border-b border-neutral-200 py-4 outline-none focus:border-orange-600 transition-colors">
+          <input id="signupConfirm" type="password" placeholder="Confirm Password" required class="w-full border-b border-neutral-200 py-4 outline-none focus:border-orange-600 transition-colors">
+          <div id="signupError" class="text-red-500 text-xs hidden"></div>
+          <button type="submit" class="w-full py-5 bg-neutral-900 text-white text-[10px] font-bold tracking-[0.4em] uppercase hover:bg-orange-600 transition-all">Create Account</button>
+        </form>
+        <p class="text-[10px] text-neutral-400 uppercase tracking-widest pt-4">Already have an account? <button onclick="switchToLogin()" class="text-orange-600 font-bold underline">Sign In</button></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ADD ADDRESS MODAL (Restored Stable Version)
+  ============================================================ -->
+  <div id="addressOverlay" class="modal-overlay fixed inset-0 bg-neutral-900/60 backdrop-blur-md z-[80] flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-lg p-12 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+      <button onclick="toggleModal('address')" class="absolute top-6 right-6 text-neutral-400 hover:text-neutral-900 text-2xl">✕</button>
+      <div class="text-center space-y-6">
+        <h3 class="luxury-heading text-3xl font-light">New Shipping Address</h3>
+        <form onsubmit="handleSaveAddress(event)" class="space-y-4 pt-6 text-left">
+          <div>
+            <label class="text-[10px] uppercase tracking-widest text-neutral-400 block mb-1">Address Label</label>
+            <input id="addrLabel" type="text" placeholder="Home" required class="w-full border-b border-neutral-200 py-3 outline-none focus:border-orange-600 transition-colors">
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-widest text-neutral-400 block mb-1">Street Address</label>
+            <input id="addrStreet" type="text" placeholder="123 Luxury Lane" required class="w-full border-b border-neutral-200 py-3 outline-none focus:border-orange-600 transition-colors">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-[10px] uppercase tracking-widest text-neutral-400 block mb-1">City</label>
+              <input id="addrCity" type="text" placeholder="Lagos" required class="w-full border-b border-neutral-200 py-3 outline-none focus:border-orange-600 transition-colors">
+            </div>
+            <div class="relative">
+              <label class="text-[10px] uppercase tracking-widest text-neutral-400 block mb-1">State</label>
+              <input id="addrState" type="text" placeholder="Search state..." required autocomplete="off" onfocus="showStateSuggestions()" oninput="filterStateSuggestions()" class="w-full border-b border-neutral-200 py-3 outline-none focus:border-orange-600 transition-colors">
+              <div id="stateSuggestions" class="absolute left-0 right-0 top-full bg-white shadow-xl border border-neutral-100 max-h-48 overflow-y-auto z-[90] hidden"></div>
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-widest text-neutral-400 block mb-1">Country</label>
+            <input id="addrCountry" type="text" value="Nigeria" required class="w-full border-b border-neutral-200 py-3 outline-none focus:border-orange-600 transition-colors">
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-widest text-neutral-400 block mb-1">Secondary Phone (Optional)</label>
+            <input id="addrSecondaryPhone" type="tel" placeholder="+234..." class="w-full border-b border-neutral-200 py-3 outline-none focus:border-orange-600 transition-colors">
+          </div>
+          <button type="submit" class="w-full py-5 mt-6 bg-neutral-900 text-white text-[10px] font-bold tracking-[0.4em] uppercase hover:bg-orange-600 transition-all">Save Address</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ACCOUNT MODAL
+  ============================================================ -->
+  <div id="accountOverlay" class="modal-overlay fixed inset-0 bg-neutral-900/60 backdrop-blur-md z-[70] flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto relative shadow-2xl">
+      <button onclick="toggleModal('account')" class="absolute top-6 right-6 z-10 text-neutral-400 hover:text-neutral-900 text-2xl">✕</button>
+      <div class="p-12">
+        <div class="flex justify-between items-start mb-8">
+          <div><h2 class="luxury-heading text-4xl mb-2" id="accountName">Welcome Back</h2><p class="text-neutral-400" id="accountEmail"></p></div>
+          <button onclick="handleLogout()" class="text-xs uppercase tracking-widest text-neutral-400 hover:text-red-600 transition-colors">Logout</button>
+        </div>
+        <div class="flex border-b mb-8">
+          <button onclick="switchAccountTab('orders')" class="tab-btn active px-6 py-3 text-sm font-bold uppercase tracking-widest transition-colors">Orders</button>
+          <button onclick="switchAccountTab('addresses')" class="tab-btn px-6 py-3 text-sm font-bold uppercase tracking-widest transition-colors">Addresses</button>
+          <button onclick="switchAccountTab('profile')" class="tab-btn px-6 py-3 text-sm font-bold uppercase tracking-widest transition-colors">Profile</button>
+        </div>
+        <div id="ordersTab" class="tab-content"><h3 class="luxury-heading text-2xl mb-6">Order History</h3><div id="ordersList" class="space-y-4"></div></div>
+        <div id="addressesTab" class="tab-content hidden"><div class="flex justify-between items-center mb-6"><h3 class="luxury-heading text-2xl">Saved Addresses</h3><button onclick="addNewAddress()" class="text-xs uppercase tracking-widest text-orange-600 font-bold">+ Add New</button></div><div id="addressesList" class="space-y-4"></div></div>
+        <div id="profileTab" class="tab-content hidden"><h3 class="luxury-heading text-2xl mb-6">Profile Settings</h3><form onsubmit="updateProfile(event)" class="space-y-4"><div><label class="text-xs uppercase tracking-widest text-neutral-400 block mb-2">Full Name</label><input id="profileName" type="text" class="w-full border-b border-neutral-200 py-3 outline-none focus:border-orange-600 transition-colors"></div><div><label class="text-xs uppercase tracking-widest text-neutral-400 block mb-2">Phone Number</label><input id="profilePhone" type="tel" class="w-full border-b border-neutral-200 py-3 outline-none focus:border-orange-600 transition-colors"></div><button type="submit" class="px-8 py-4 bg-neutral-900 text-white text-[10px] font-bold tracking-[0.4em] uppercase hover:bg-orange-600 transition-all">Save Changes</button></form></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       QUICK VIEW MODAL
+  ============================================================ -->
+  <div id="quickViewOverlay" onclick="closeQuickView()" class="modal-overlay fixed inset-0 bg-neutral-900/90 backdrop-blur-xl z-[100] flex items-center justify-center p-4 md:p-12">
+    <div class="bg-white w-full max-w-6xl max-h-[90vh] overflow-hidden relative shadow-2xl flex flex-col md:flex-row" onclick="event.stopPropagation()">
+      <button onclick="closeQuickView()" class="absolute top-6 right-6 z-50 text-neutral-400 hover:text-neutral-900 text-3xl">✕</button>
+      <div class="w-full md:w-2/3 bg-neutral-100 flex items-center justify-center p-4 md:p-8 h-[50vh] md:h-auto min-h-[400px]">
+        <img id="qvImage" src="" class="max-w-full max-h-full object-contain shadow-2xl" alt="Product View">
+      </div>
+      <div class="w-full md:w-1/3 p-12 flex flex-col justify-center space-y-8">
+        <div><h2 id="qvName" class="luxury-heading text-4xl mb-4"></h2><p id="qvPrice" class="text-orange-600 text-2xl font-bold"></p></div>
+                <p id="qvDesc" class="text-neutral-500 leading-relaxed text-sm"></p>
+                
+                <div class="pt-8 space-y-6">
+                  <!-- Quantity Selector -->
+                  <div class="flex items-center justify-between border-b border-neutral-100 pb-4">
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold">Quantity</span>
+                    <div class="flex items-center gap-6">
+                      <button onclick="updateQuickViewQty(-1)" class="text-xl hover:text-orange-600 transition-colors">−</button>
+                      <span id="qvQty" class="font-bold w-4 text-center">1</span>
+                      <button onclick="updateQuickViewQty(1)" class="text-xl hover:text-orange-600 transition-colors">+</button>
+                    </div>
+                  </div>
+        
+                  <button id="qvAddToCart" class="w-full py-6 bg-neutral-900 text-white text-[10px] font-bold tracking-[0.5em] uppercase hover:bg-orange-600 transition-colors">Add to House</button>
+        
+          <a id="qvInstagram" href="" target="_blank" class="block text-center text-[10px] uppercase tracking-widest text-neutral-400 hover:text-neutral-900 transition-colors">View Original Post</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="py-32 px-12 bg-neutral-900 text-white relative">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-16">
+      <div class="space-y-6"><div class="fashion-logo text-4xl">RavePlus<span class="text-orange-600">Collections</span></div><p class="text-neutral-400 text-sm max-w-xs">Handcrafted luxury in Lagos.</p></div>
+      <div class="space-y-6">
+        <h4 class="text-[10px] uppercase tracking-[0.4em] font-bold text-orange-600">Concierge</h4>
+        <ul class="text-neutral-400 text-sm space-y-4">
+          <li><a href="https://wa.me/2348023427426" target="_blank" class="hover:text-white transition-colors">WhatsApp: +234 802 342 7426</a></li>
+          <li><a href="https://instagram.com/ravepluscollection" target="_blank" class="hover:text-white transition-colors">Instagram: @ravepluscollection</a></li>
+        </ul>
+      </div>
+      <div class="space-y-6 md:text-right"><h4 class="text-[10px] uppercase tracking-[0.4em] font-bold text-orange-600">Studio</h4><p class="text-neutral-400 text-sm">Lagos, Nigeria</p></div>
+    </div>
+  </footer>
+
+  <script src="assets/js/state.js"></script>
+  <script src="assets/js/database.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/cart.js"></script>
+  <script src="assets/js/checkout.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
