@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Product, useStore } from "@/store/useStore";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 
 interface ProductCardProps {
   product: Product;
@@ -17,7 +17,7 @@ export function ProductCard({ product }: ProductCardProps) {
     toggleCart(); // Show cart after quick add
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { type: "spring", damping: 20, stiffness: 100 } }
   };

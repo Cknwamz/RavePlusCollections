@@ -1,0 +1,62 @@
+﻿
+> temp-app@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.1.6 (Turbopack)
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 4.2s
+  Running TypeScript ...
+node.exe : Failed to compile.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program 
+Files\nodejs/node_mo ...
++ 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Failed to compile.:Strin 
+   g) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+./src/components/sections/Hero.tsx:27:19
+Type error: Type '{ hidden: { opacity: number; y: number; }; visible: 
+{ opacity: number; y: number; transition: { duration: number; ease: 
+string; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ opacity: number; y: number; transition: { duration: 
+number; ease: string; }; }' is not assignable to type 'Variant'.
+      Type '{ opacity: number; y: number; transition: { duration: 
+number; ease: string; }; }' is not assignable to type 
+'TargetAndTransition'.
+        Type '{ opacity: number; y: number; transition: { duration: 
+number; ease: string; }; }' is not assignable to type '{ transition?: 
+Transition<any> | undefined; transitionEnd?: ResolvedValues$1 | 
+undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ duration: number; ease: string; }' is not 
+assignable to type 'Transition<any> | undefined'.
+              Type '{ duration: number; ease: string; }' is not 
+assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ duration: number; ease: string; }' is not 
+assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'ease' are incompatible.
+                    Type 'string' is not assignable to type 'Easing | 
+Easing[] | undefined'.
+
+[0m [90m 25 |[39m         className[33m=[39m[32m"max-w-6xl 
+space-y-8 z-10"[39m
+ [90m 26 |[39m       [33m>[39m
+[31m[1m>[22m[39m[90m 27 |[39m         
+[33m<[39m[33mmotion[39m[33m.[39mp 
+variants[33m=[39m{childVariants} 
+className[33m=[39m[32m"text-neutral-400 font-medium 
+tracking-[0.5em] uppercase text-xs"[39m[33m>[39m
+ [90m    |[39m                   [31m[1m^[22m[39m
+ [90m 28 |[39m           [33mEmbrace[39m [33mYour[39m 
+[33mInner[39m [33m<[39m[33mspan[39m className[33m=[39m[32m"te
+xt-orange-600"[39m[33m>[39m[33mRoyalty[39m[33m<[39m[33m/[39m
+[33mspan[39m[33m>[39m
+ [90m 29 |[39m         
+[33m<[39m[33m/[39m[33mmotion[39m[33m.[39mp[33m>[39m
+ [90m 30 |[39m         [0m
+Next.js build worker exited with code: 1 and signal: null
