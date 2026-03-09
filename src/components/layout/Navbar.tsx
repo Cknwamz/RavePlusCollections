@@ -1,7 +1,8 @@
 "use client";
 
 import { useStore } from "@/store/useStore";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 export function Navbar() {
   const { toggleCart, openLogin, openAccount, user, cart } = useStore();
@@ -32,6 +33,13 @@ export function Navbar() {
         >
           {user ? 'Account' : 'Login'}
         </button>
+        
+        {user?.role === 'admin' && (
+          <Link href="/admin" className="text-[10px] uppercase tracking-[0.4em] font-bold text-orange-600 hover:text-orange-800 transition-colors hidden md:block flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4" />
+            Admin
+          </Link>
+        )}
         
         <button onClick={toggleCart} className="relative p-2 group">
           <ShoppingBag className="w-8 h-8 group-hover:text-orange-600 transition-colors" strokeWidth={1} />

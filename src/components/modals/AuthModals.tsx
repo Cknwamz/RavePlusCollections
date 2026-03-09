@@ -25,7 +25,7 @@ export function AuthModals() {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       
-      const { data: userData } = await supabase.from("users").select("*").eq("id", data.user.id).single();
+      const { data: userData } = await supabase.from("users").select("id, name, email, phone, addresses, role").eq("id", data.user.id).single();
       if (userData) setUser(userData);
       else setUser({ id: data.user.id, email, name: email.split("@")[0] });
       
